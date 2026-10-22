@@ -1,7 +1,5 @@
-# CALI TIMER v1.2
+# CALI TIMER v1.3
 
-Upload `index.html` and `README.md` to the root of your GitHub Pages repository.
+Fixes: autosaved session notes, full backup import/export including history and notes, and 5-level adjustable audio volume with test button.
 
-New: one-time 10-second preparation countdown, five-second audio ticks, distinct work start/end beeps, audio toggle in Settings, reorder saved programs with up/down arrows, and session notes attached to the original program and viewable via its NOTES button or History.
-
-All existing programs use the same localStorage keys as v1.1. Data remains local to the browser. Export backups regularly. iOS may silence/suspend audio in background or when locked.
+Upload `index.html` to GitHub Pages repository root. Existing local browser data is preserved. iPhone browser/device volume restrictions still apply.

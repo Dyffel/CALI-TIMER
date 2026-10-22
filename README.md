@@ -1,8 +1,7 @@
-# CALI TIMER v1.1
+# CALI TIMER v1.2
 
-Static mobile-first calisthenics workout timer. Upload `index.html` to the root of your GitHub Pages repository.
+Upload `index.html` and `README.md` to the root of your GitHub Pages repository.
 
-- Edit rest after every set, including the last set of an exercise. No separate between-exercise rest. The final set rest is skipped at the end of the workout.
-- Timed and manual sets, pause, done early, skip rest.
-- Programs, duplication, paste import, backups and history.
-- Data saved locally in your browser; export backups regularly. iOS may restrict background audio.
+New: one-time 10-second preparation countdown, five-second audio ticks, distinct work start/end beeps, audio toggle in Settings, reorder saved programs with up/down arrows, and session notes attached to the original program and viewable via its NOTES button or History.
+
+All existing programs use the same localStorage keys as v1.1. Data remains local to the browser. Export backups regularly. iOS may silence/suspend audio in background or when locked.

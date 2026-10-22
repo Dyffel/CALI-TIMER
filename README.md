@@ -9,3 +9,6 @@ Mobile-first calisthenics workout timer. Upload `index.html` to the repository r
 - Separate Test Countdown and Test Transition buttons in Settings.
 
 All existing workout programs, history, and notes remain stored locally in the same browser storage keys. Export backups regularly. iPhone media volume and Safari audio policies still apply.
+
+## v1.5 audio boost
+All five sound levels use stronger mixed-frequency tones and a 3× pre-compressor gain boost. The compressor limits clipping, so perceived loudness cannot be guaranteed to triple on every phone.

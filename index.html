@@ -8,7 +8,7 @@ const load=(k)=>{try{return JSON.parse(localStorage.getItem(k))||[]}catch{return
 let programs=load(KEY),history=load(HKEY),page='home',draft=null,session=null,tick=null;
 const AUDIO_KEY='cali-timer-audio-v1',VOLUME_KEY='cali-timer-volume-v1';let audioOn=localStorage.getItem(AUDIO_KEY)!=='off',audioCtx=null,audioVolume=Math.min(5,Math.max(1,Number(localStorage.getItem(VOLUME_KEY))||5));
 // Fuller multi-oscillator sounds with a compressor to avoid clipping on phone speakers.
-const volumeGains=[0,.045,.12,.28,.55,.95];
+const volumeGains=[0,.16,.32,.55,.78,1];
 function audioUnlock(){if(!audioOn)return;try{audioCtx ||= new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}catch{}}
 function playVoice(freq,when,duration,level,type='square',sweep=1){
  const ctx=audioCtx,osc=ctx.createOscillator(),env=ctx.createGain();
@@ -22,18 +22,18 @@ function playVoice(freq,when,duration,level,type='square',sweep=1){
 let audioMaster=null;
 function tone(kind){if(!audioOn)return;try{
  audioUnlock();if(!audioCtx)return;
- if(!audioMaster){const comp=audioCtx.createDynamicsCompressor();comp.threshold.value=-13;comp.knee.value=8;comp.ratio.value=7;comp.attack.value=.003;comp.release.value=.12;audioMaster=audioCtx.createGain();audioMaster.connect(comp);comp.connect(audioCtx.destination)}
+ if(!audioMaster){const comp=audioCtx.createDynamicsCompressor();comp.threshold.value=-9;comp.knee.value=3;comp.ratio.value=10;comp.attack.value=.002;comp.release.value=.16;audioMaster=audioCtx.createGain();audioMaster.gain.value=3.0;audioMaster.connect(comp);comp.connect(audioCtx.destination)}
  const t=audioCtx.currentTime+.008,level=volumeGains[audioVolume];
  if(kind==='tick'){
    // Percussive mid-frequency tick: audible on small phone speakers.
-   playVoice(1120,t,.17,level*.52,'square',.72);
-   playVoice(740,t,.15,level*.32,'triangle',.85);
+   playVoice(920,t,.25,level*.9,'square',.83);
+   playVoice(590,t,.25,level*.75,'sawtooth',.94);
  }else if(kind==='start'){
-   playVoice(840,t,.43,level*.56,'square',1.12);
-   playVoice(560,t,.43,level*.34,'triangle',1.06);
+   playVoice(770,t,.6,level*.9,'square',1.1);
+   playVoice(510,t,.6,level*.8,'sawtooth',1.06);
  }else{
-   playVoice(640,t,.48,level*.54,'square',.62);
-   playVoice(440,t,.48,level*.34,'triangle',.78);
+   playVoice(660,t,.65,level*.9,'square',.68);
+   playVoice(430,t,.65,level*.8,'sawtooth',.8);
  }
 }catch{}}
 function testCountdown(){audioUnlock();if(!audioOn)return;for(let i=0;i<5;i++)setTimeout(()=>tone('tick'),i*850);setTimeout(()=>tone('start'),5*850)}
@@ -47,7 +47,7 @@ function go(p){cancelAnimationFrame(tick);tick=null;page=p;render();window.scrol
 function render(){nav();const s=$('#screen');if(page==='home')s.innerHTML=`<div class="hero"><div class="brand">CALI<br><em>TIMER</em></div><div class="eyebrow">PLAN. TRAIN. PROGRESS.</div></div><div class="stack home-actions"><button class="btn primary" onclick="go('programs')">START WORKOUT <span>→</span></button><button class="btn" onclick="go('programs')">MY PROGRAMS <span>→</span></button><button class="btn" onclick="editNew()">CREATE PROGRAM <span>＋</span></button><button class="btn" onclick="quick()">QUICK TIMER <span>→</span></button></div><h2>RECENT PROGRAMS</h2>${programs.slice(-2).reverse().map(p=>card(p)).join('')||'<p class="muted">Create your first workout to get started.</p>'}`;
 else if(page==='programs')s.innerHTML=`<div class="top"><h1>My Programs</h1><button class="btn primary" onclick="editNew()">＋ New</button></div>${programs.length?programs.map(card).join(''):'<div class="panel muted">No saved programs yet. Create one to begin.</div>'}<p class="muted small">Use ↑ ↓ on each card to arrange your programs.</p><div class="actions"><button class="btn" onclick="importText()">PASTE PROGRAM</button><button class="btn" onclick="importFile()">IMPORT BACKUP</button></div>`;
 else if(page==='builder')builder();else if(page==='timer')timerView();else if(page==='history')s.innerHTML=`<h1>Workout History</h1>${history.slice().reverse().map(h=>`<div class="panel"><strong>${esc(h.name)}</strong><div class="muted small">${new Date(h.date).toLocaleString()} · ${Math.round(h.seconds/60)} min</div>${h.notes?`<div class="note">${esc(h.notes)}</div>`:''}</div>`).join('')||'<p class="muted">Completed sessions will appear here.</p>'}`;
-else if(page==='settings')s.innerHTML=`<h1>Settings & Backup</h1><div class="panel toggle"><div><strong>Workout sounds</strong><div class="muted small">Five countdown ticks and transition beeps</div></div><input type="checkbox" aria-label="Workout sounds" ${audioOn?'checked':''} onchange="toggleAudio()"></div><div class="panel"><div class="row"><div><strong>Sound volume</strong><div class="muted small">1 = quiet · 5 = strongest</div></div><select aria-label="Sound volume" style="width:110px" onchange="setAudioVolume(this.value)">${[1,2,3,4,5].map(v=>`<option value="${v}" ${audioVolume===v?'selected':''}>${v} / 5</option>`).join('')}</select></div><div class="actions" style="margin-top:12px"><button class="mini" onclick="testCountdown()">TEST COUNTDOWN</button><button class="mini" onclick="audioUnlock();tone('start')">TEST TRANSITION</button></div></div><div class="panel"><h3>Your data stays on this device</h3><p class="muted">Export a backup to keep your programs safe or transfer them to another phone. Clearing browser storage can delete saved programs.</p><button class="btn primary full" onclick="exportFile()">EXPORT BACKUP</button><div class="spacer"></div><button class="btn full" onclick="importFile()">IMPORT BACKUP</button></div><div class="panel small muted">Use your iPhone media volume and keep the screen awake. Browser audio may be limited when the phone is locked. Levels cannot exceed the phone speaker’s hardware limit.</div>`}
+else if(page==='settings')s.innerHTML=`<h1>Settings & Backup</h1><div class="panel toggle"><div><strong>Workout sounds</strong><div class="muted small">Five countdown ticks and transition beeps</div></div><input type="checkbox" aria-label="Workout sounds" ${audioOn?'checked':''} onchange="toggleAudio()"></div><div class="panel"><div class="row"><div><strong>Sound volume</strong><div class="muted small">1 = boosted · 5 = maximum</div></div><select aria-label="Sound volume" style="width:110px" onchange="setAudioVolume(this.value)">${[1,2,3,4,5].map(v=>`<option value="${v}" ${audioVolume===v?'selected':''}>${v} / 5</option>`).join('')}</select></div><div class="actions" style="margin-top:12px"><button class="mini" onclick="testCountdown()">TEST COUNTDOWN</button><button class="mini" onclick="audioUnlock();tone('start')">TEST TRANSITION</button></div></div><div class="panel"><h3>Your data stays on this device</h3><p class="muted">Export a backup to keep your programs safe or transfer them to another phone. Clearing browser storage can delete saved programs.</p><button class="btn primary full" onclick="exportFile()">EXPORT BACKUP</button><div class="spacer"></div><button class="btn full" onclick="importFile()">IMPORT BACKUP</button></div><div class="panel small muted">Use your iPhone media volume and keep the screen awake. Browser audio may be limited when the phone is locked. Sound is boosted and compressed for audibility, but cannot exceed the phone speaker’s hardware limit. If still quiet, check iPhone media volume and silent-mode behavior.</div>`}
 function card(p){return `<div class="panel"><div class="row"><div><strong>${esc(p.name)}</strong><div class="muted small">${p.exercises.length} exercises · ${p.exercises.reduce((a,e)=>a+e.sets.length,0)} sets · ~${Math.ceil(total(p)/60)} min</div></div><button class="btn primary" onclick="start('${p.id}')">START</button></div><div class="actions" style="margin-top:12px"><button class="mini" onclick="edit('${p.id}')">EDIT</button><button class="mini" onclick="duplicate('${p.id}')">DUPLICATE</button><button class="mini" onclick="programNotes('${p.id}')">NOTES</button><button class="mini" onclick="moveProgram('${p.id}',-1)">↑</button><button class="mini" onclick="moveProgram('${p.id}',1)">↓</button><button class="mini" onclick="removeProgram('${p.id}')">DELETE</button></div></div>`}
 function total(p){return p.exercises.reduce((sum,e,i)=>sum+e.sets.reduce((n,set,j)=>n+(e.mode==='manual'?0:Number(set.work))+(j===e.sets.length-1&&i===p.exercises.length-1?0:Number(set.rest)),0),0)}
 function editNew(){draft=fresh();go('builder')}function edit(id){draft=structuredClone(programs.find(p=>p.id===id));go('builder')}function duplicate(id){draft=structuredClone(programs.find(p=>p.id===id));draft.id=crypto.randomUUID();draft.name+=' (Copy)';go('builder')}
